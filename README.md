@@ -36,30 +36,6 @@ Run with
 
 This project uses the aws serverless model. Below is a sequence diagram explaining the flow of the app.
 
-```
-/* load page */
-browser -> s3
-	    <- [react page]
-
-/* authentication */
-browser -> cognito
-	    <- [Authentication]
-
-/* refresh table */
-browser [refresh] -> api gateway -> lambda -> dynamodb
-				                            <- [table data]
-
-/* blast sequence */
-browser [input fasta] -> s3
-		              <- [input uri]
-browser [input uri] -> api gateway ->	lambda	 -> ec2 server -> blast script [output file] -> s3
-					     	                     <-             	      				     <- [output uri]
-				                        [input, output] -> dynamodb
-		            <-		       <-		            <- [success]
-	[refresh] -> api gateway -> lambda -> dynamodb
-					                    <- [table data]
-```
-
 ## load page
 
 Pages are loaded directly from s3 without hitting a server first
@@ -74,6 +50,12 @@ An ajax request hits aws API Gateway, which points to an aws Lambda function whi
 
 ## find new alignment
 
-An ajax request loads a user uploaded file to s3, saves the location of this file and then sends it to aws API Gateway, which forwards the request to a aws Lambda function. The function adds the file to the dynamodb table. Then the lambda function invokes the alignment microservice running on ec2 with the location of the query sequence in s3. The microservice computes the alignment, uploads it so s3, and returns the location of the file on s3.
+An ajax request loads a user uploaded file to s3, saves the location of this file and then sends it in another ajax request to aws API Gateway, which forwards the request to an aws Lambda function. The function adds the file to the dynamodb table. Then the lambda function invokes the alignment microservice running on ec2 with the location of the query sequence in s3. The microservice computes the alignment, uploads it to s3, and returns the location of the file on s3.
 
 # Problems
+
+I originally made this using websockets and aws's serverless application model (sam), but the support for testing websockets locally with sam and amazon cognito is not entirely complete and required me to install and switch to linux because of lack of support for Windows 10 Home. This ended up being more of a headache than it was worth so I scrapped that code and just switched to not using websockets. I also switched to the `serverless` framework because `sam` seemed to be somewhat of a pain.
+
+Right now local testing is somewhat wonky. `serverless` has problems with aws cognito and I didn't take the time to figure out a work around. Testing this offline will not work with the alignment microservice because of authentication problems.
+
+As for security, in the future, everything would be https and not http and the alignmnent microservice should only be accessible to lamda. I just made it publicly accessible because I'm really crunched for time right now.
