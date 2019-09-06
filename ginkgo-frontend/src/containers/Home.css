@@ -1,0 +1,23 @@
+.Home .lander {
+  padding: 80px 0;
+  text-align: center;
+}
+
+.Home .lander h1 {
+  font-family: "Open Sans", sans-serif;
+  font-weight: 600;
+}
+
+.Home .lander p {
+  color: #999;
+}
+
+.fake-link {
+  cursor: pointer;
+  color: blue;
+  text-decoration: underline;
+}
+.fake-link:hover {
+  text-decoration: none;
+  text-shadow: 1px 1px 1px #555;
+}
