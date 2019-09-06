@@ -34,7 +34,7 @@ Run with
 
 # Serverless Design
 
-This project uses the aws serverless model. Below is a sequence diagram explaining the flow of the app.
+This project uses the aws serverless model.
 
 ## load page
 
