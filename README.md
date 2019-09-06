@@ -2,6 +2,8 @@
 
 This is my submission for the ginkgo backend programming challenge.
 
+http://ginkgo-app.s3-website.us-east-2.amazonaws.com/
+
 In this repository, there are three directories: ginkgo-frontend, ginkgo-api, and alignment-microservice. Once all the dependencies are installed and setup, all three parts of this project can be run with
 
 `npm start`
