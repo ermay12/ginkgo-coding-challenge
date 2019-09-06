@@ -2,7 +2,9 @@ import * as dynamoDbLib from "./libs/dynamodb-lib";
 import { success, failure } from "./libs/response-lib";
 var rp = require("request-promise");
 
-const blastURI = process.env.IS_OFFLINE ? "http://localhost:5000" : "idk";
+const blastURI = process.env.IS_OFFLINE
+  ? "http://localhost:5000"
+  : "http://ec2-3-14-150-247.us-east-2.compute.amazonaws.com/";
 
 function computeAlignment(userId, sequenceURI) {
   return rp({

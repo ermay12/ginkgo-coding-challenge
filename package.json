@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "cd frontend && yarn start & cd alignment-microservice && venv/bin/flask run & cd ginkgo-api && serverless offline"
+    "start": "cd frontend && yarn start & cd alignment-microservice && python3 app.py test & cd ginkgo-api && sudo serverless offline"
   },
   "repository": {
     "type": "git",
