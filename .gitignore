@@ -1,2 +1,7 @@
 ginkgo.pem
-node_modules
+node_modules/
+__pycache__/
+# Flask stuff:
+instance/
+.webassets-cache
+venv/
