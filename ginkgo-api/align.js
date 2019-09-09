@@ -22,6 +22,11 @@ export async function main(event, context, callback) {
   const userId = event.requestContext.identity.cognitoIdentityId;
   const sequenceURI = data.sequenceURI;
   const eValue = data.eValue;
+  const defaultOutput = {
+    outputURI: "empty",
+    inputSequences: [],
+    outputAlignments: []
+  };
   let params = {
     TableName: "ginkgo-alignments",
     Item: {
@@ -29,7 +34,8 @@ export async function main(event, context, callback) {
       sequenceName: data.sequenceName,
       sequenceURI: sequenceURI,
       status: "computing",
-      createdAt: Date.now()
+      createdAt: Date.now(),
+      output: defaultOutput
     }
   };
   try {
@@ -49,7 +55,7 @@ export async function main(event, context, callback) {
     console.log(`alignment found: ${output}`);
   } catch (e) {
     console.log(e);
-    output = {};
+    output = defaultOutput;
     status = "failure";
     console.log(`alignment not found:`);
   }

@@ -1,5 +1,5 @@
 let apiHost;
-if (process.env.NODE_ENV === "development" && false) {
+if (process.env.NODE_ENV === "development") {
   apiHost = "http://localhost:4000";
 } else {
   apiHost = "https://4w5yfp46hb.execute-api.us-east-2.amazonaws.com/prod";

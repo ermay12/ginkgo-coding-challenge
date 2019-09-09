@@ -55,7 +55,7 @@ export default ({ tableRows }) => {
                 text={tableRow.status === "failure" ? "error" : "View"}
                 loadingText="Processing..."
                 onClick={() => handleShow(index)}
-                disabled={tableRow.status === "failure"}
+                disabled={tableRow.status === "failure" || !tableRow.output}
               />
               <Modal
                 show={show && index === row}
@@ -132,7 +132,7 @@ export default ({ tableRows }) => {
                 text={tableRow.status === "failure" ? "error" : "View"}
                 loadingText="Processing..."
                 onClick={fileOpener(tableRow.output.outputURI)}
-                disabled={tableRow.status === "failure"}
+                disabled={tableRow.status === "failure" || !tableRow.output}
               />
             </td>
           </tr>
