@@ -45,9 +45,12 @@ export default ({ tableRows }) => {
               })(tableRow.createdAt)}
             </td>
             <td>
-              <Button onClick={fileOpener(tableRow.sequenceURI)}>
+              <div
+                className="fake-link"
+                onClick={fileOpener(tableRow.sequenceURI)}
+              >
                 {tableRow.sequenceName}
-              </Button>
+              </div>
             </td>
             <td>
               <LoaderButton
