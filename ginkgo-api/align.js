@@ -6,10 +6,10 @@ const blastURI = process.env.IS_OFFLINE
   ? "http://localhost:5000"
   : "http://ec2-3-14-150-247.us-east-2.compute.amazonaws.com/";
 
-function computeAlignment(userId, sequenceURI) {
+function computeAlignment(userId, sequenceURI, eValue) {
   return rp({
     uri: blastURI,
-    qs: { userId, sequenceURI },
+    qs: { userId, sequenceURI, eValue },
     json: true
   }).catch(function(err) {
     console.log(err);
@@ -21,13 +21,14 @@ export async function main(event, context, callback) {
   const data = JSON.parse(event.body);
   const userId = event.requestContext.identity.cognitoIdentityId;
   const sequenceURI = data.sequenceURI;
+  const eValue = data.eValue;
   let params = {
     TableName: "ginkgo-alignments",
     Item: {
       userId: userId,
       sequenceName: data.sequenceName,
       sequenceURI: sequenceURI,
-      outputURI: "computing",
+      status: "computing",
       createdAt: Date.now()
     }
   };
@@ -40,16 +41,34 @@ export async function main(event, context, callback) {
   console.log(
     `start computeAlignment(userId=${userId}, sequenceURI=${sequenceURI})`
   );
-  let alignment = await computeAlignment(userId, sequenceURI);
-  console.log(`alignment found: ${alignment}`);
-  params.Key = { userId, sequenceURI };
-  params.UpdateExpression = "set outputURI = :o";
-  params.ExpressionAttributeValues = { ":o": alignment };
-  params.ReturnValues = "UPDATED_NEW";
+  let output;
+  let status;
+  try {
+    output = await computeAlignment(userId, sequenceURI, eValue);
+    status = "success";
+    console.log(`alignment found: ${output}`);
+  } catch (e) {
+    console.log(e);
+    output = {};
+    status = "failure";
+    console.log(`alignment not found:`);
+  }
+  params = {
+    TableName: "ginkgo-alignments",
+    Key: { userId, sequenceURI },
+    UpdateExpression: "set #output = :o, #status = :s",
+    ExpressionAttributeValues: { ":o": output, ":s": status },
+    ReturnValues: "UPDATED_NEW",
+    ExpressionAttributeNames: {
+      "#output": "output",
+      "#status": "status"
+    }
+  };
   try {
     await dynamoDbLib.call("update", params);
     return success(params.Item);
   } catch (e) {
+    console.log(e);
     return failure({ status: false });
   }
 }

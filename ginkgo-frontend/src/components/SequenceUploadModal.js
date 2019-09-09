@@ -12,13 +12,8 @@ export default class SequenceUploadModal extends Component {
     this.file = null;
 
     this.state = {
-      isLoading: null,
-      fileChosen: false
+      isLoading: null
     };
-  }
-
-  validateForm() {
-    return this.state.fileChosen;
   }
 
   handleChange = event => {
@@ -29,11 +24,12 @@ export default class SequenceUploadModal extends Component {
 
   handleFileChange = event => {
     this.file = event.target.files[0];
-    this.setState({ fileChosen: true });
   };
 
   handleSubmit = async event => {
+    let eValue = event.currentTarget.eValue.value;
     event.preventDefault();
+    event.stopPropagation();
     let extension = this.file.name.split(".")[1];
     if (
       (this.file && this.file.size > config.MAX_ATTACHMENT_SIZE) ||
@@ -48,10 +44,12 @@ export default class SequenceUploadModal extends Component {
     this.setState({ isLoading: true });
     try {
       const attachment = this.file ? await s3Upload(this.file) : null;
-
-      console.log(`file uploaded: ${attachment}`);
       API.post("align", "/align", {
-        body: { sequenceName: this.file.name, sequenceURI: attachment }
+        body: {
+          sequenceName: this.file.name,
+          sequenceURI: attachment,
+          eValue: eValue
+        }
       })
         .catch(err => alert(err))
         .then(this.props.alignmentComplete);
@@ -67,29 +65,32 @@ export default class SequenceUploadModal extends Component {
     let { show, onHide } = this.props;
     return (
       <Modal show={show} onHide={onHide}>
-        <form onSubmit={this.handleSubmit}>
-          <Modal.Header closeButton>
-            <Modal.Title>Search Subsequence</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
+        <Modal.Header closeButton>
+          <Modal.Title>Search Subsequence</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form onSubmit={this.handleSubmit}>
             <Form.Group controlId="file">
               <Form.Label>Upload a new fasta file to blast search.</Form.Label>
-              <Form.Control onChange={this.handleFileChange} type="file" />
+              <Form.Control
+                onChange={this.handleFileChange}
+                type="file"
+                required
+              />
             </Form.Group>
-          </Modal.Body>
-          <Modal.Footer>
+            <Form.Group controlId="eValue">
+              <Form.Label>EValue:</Form.Label>
+              <Form.Control type="number" required />
+            </Form.Group>
             <LoaderButton
               block
-              bsStyle="primary"
-              bsSize="large"
-              disabled={!this.validateForm()}
               type="submit"
               isLoading={this.state.isLoading}
               text="Search"
               loadingText="Uploading..."
             />
-          </Modal.Footer>
-        </form>
+          </Form>
+        </Modal.Body>
       </Modal>
     );
   }

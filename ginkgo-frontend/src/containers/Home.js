@@ -14,7 +14,9 @@ export default class Home extends Component {
     this.setState({ show: false });
     this.refreshTable();
   };
-  handleShow = () => this.setState({ show: true });
+  handleShow = event => {
+    this.setState({ show: true });
+  };
 
   refreshTable = () => {
     API.get("list", "/list")
@@ -46,13 +48,12 @@ export default class Home extends Component {
       <div className="Home">
         <div className="lander">
           <Button
-            variant="primary"
             onClick={this.handleShow}
+            variant="primary"
             style={{ marginBottom: "30px" }}
           >
             Search new sequence
           </Button>
-
           <SequenceUploadModal
             show={this.state.show}
             onHide={this.handleClose}
