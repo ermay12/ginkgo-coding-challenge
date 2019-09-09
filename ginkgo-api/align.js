@@ -6,10 +6,10 @@ const blastURI = process.env.IS_OFFLINE
   ? "http://localhost:5000"
   : "http://ec2-3-14-150-247.us-east-2.compute.amazonaws.com/";
 
-function computeAlignment(userId, sequenceURI, eValue) {
+function computeAlignment(userId, sequenceURI, eValue, wordSize) {
   return rp({
     uri: blastURI,
-    qs: { userId, sequenceURI, eValue },
+    qs: { userId, sequenceURI, eValue, wordSize },
     json: true
   }).catch(function(err) {
     console.log(err);
@@ -22,6 +22,7 @@ export async function main(event, context, callback) {
   const userId = event.requestContext.identity.cognitoIdentityId;
   const sequenceURI = data.sequenceURI;
   const eValue = data.eValue;
+  const wordSize = data.wordSize;
   const defaultOutput = {
     outputURI: "empty",
     inputSequences: [],
@@ -50,9 +51,9 @@ export async function main(event, context, callback) {
   let output;
   let status;
   try {
-    output = await computeAlignment(userId, sequenceURI, eValue);
+    output = await computeAlignment(userId, sequenceURI, eValue, wordSize);
     status = "success";
-    console.log(`alignment found: ${output}`);
+    console.log(`alignment found: ${JSON.stringify(output)}`);
   } catch (e) {
     console.log(e);
     output = defaultOutput;
@@ -75,6 +76,8 @@ export async function main(event, context, callback) {
     return success(params.Item);
   } catch (e) {
     console.log(e);
+    params.ExpressionAttributeValues = { ":o": defaultOutput, ":s": "failure" };
+    await dynamoDbLib.call("update", params);
     return failure({ status: false });
   }
 }

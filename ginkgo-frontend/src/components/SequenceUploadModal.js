@@ -28,8 +28,13 @@ export default class SequenceUploadModal extends Component {
 
   handleSubmit = async event => {
     let eValue = event.currentTarget.eValue.value;
+    let wordSize = event.currentTarget.wordSize.value;
     event.preventDefault();
     event.stopPropagation();
+    if (wordSize < 4) {
+      alert("Invalid word size.  Must be greater than or equal to 4.");
+      return;
+    }
     let extension = this.file.name.split(".")[1];
     if (
       (this.file && this.file.size > config.MAX_ATTACHMENT_SIZE) ||
@@ -48,7 +53,8 @@ export default class SequenceUploadModal extends Component {
         body: {
           sequenceName: this.file.name,
           sequenceURI: attachment,
-          eValue: eValue
+          eValue: eValue,
+          wordSize: wordSize
         }
       })
         .catch(err => alert(err))
@@ -80,7 +86,11 @@ export default class SequenceUploadModal extends Component {
             </Form.Group>
             <Form.Group controlId="eValue">
               <Form.Label>EValue:</Form.Label>
-              <Form.Control type="number" required />
+              <Form.Control type="number" required defaultValue={10} />
+            </Form.Group>
+            <Form.Group controlId="wordSize">
+              <Form.Label>Word Size:</Form.Label>
+              <Form.Control type="number" required defaultValue={11} />
             </Form.Group>
             <LoaderButton
               block

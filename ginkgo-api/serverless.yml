@@ -43,6 +43,7 @@ functions:
           method: post
           cors: true
           authorizer: aws_iam
+    timeout: 50
   list:
     # Defines an HTTP API endpoint that calls the main function in list.js
     # - path: url path is /list

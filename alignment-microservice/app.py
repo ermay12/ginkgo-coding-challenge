@@ -12,7 +12,7 @@ app = Flask(__name__)
 s3Bucket = 'ginkgo-files'
 
 
-def blast(inputFilePath, outputFileName, eValue):
+def blast(inputFilePath, outputFileName, eValue, wordSize):
     txtOutputPath = "temp/"+outputFileName+".txt"
     xmlOutputPath = "temp/"+outputFileName+".xml"
     blastn_cline = NcbiblastnCommandline(
@@ -20,14 +20,16 @@ def blast(inputFilePath, outputFileName, eValue):
         db="nucleotide_database/nd",
         outfmt=5,
         out=xmlOutputPath,
-        evalue=eValue)
+        evalue=eValue,
+        word_size=wordSize)
     blastn_cline()
     blastn_cline = NcbiblastnCommandline(
         query=inputFilePath,
         db="nucleotide_database/nd",
         outfmt=0,
         out=txtOutputPath,
-        evalue=eValue)
+        evalue=eValue,
+        word_size=wordSize)
     blastn_cline()
     return txtOutputPath, xmlOutputPath
 
@@ -38,6 +40,7 @@ def index():
     userId = request.args.get('userId')
     sequenceURI = request.args.get('sequenceURI')
     eValue = request.args.get('eValue')
+    wordSize = request.args.get('wordSize')
     tempInputFilePath = 'temp/'+userId+sequenceURI.split('.')[0]+'.fasta'
     outputFileName = str(int(time.time()))+sequenceURI.split('.')[0]
     with open(tempInputFilePath, 'wb') as data:
@@ -45,7 +48,7 @@ def index():
                             userId+'/'+sequenceURI, data)
 
     txtOutputPath, xmlOutputPath = blast(
-        tempInputFilePath, outputFileName, eValue)
+        tempInputFilePath, outputFileName, eValue, wordSize)
 
     extraArgs = {'ContentType': 'text/plain'}
     s3.upload_file(txtOutputPath, s3Bucket, 'private/' +
@@ -68,7 +71,7 @@ def index():
             alignment = blast_record.alignments[0]
             hsp = alignment.hsps[0]
             resp["outputAlignments"].append({"hit_id": alignment.hit_id,
-                                             "expect": hsp.expect,
+                                             "expect": str(hsp.expect),
                                              "align_length": hsp.align_length,
                                              "query_start": hsp.query_start,
                                              "query_end": hsp.query_end,
